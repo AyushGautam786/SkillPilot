@@ -1,14 +1,8 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TopBar } from "@/components/TopBar";
-import { RouteLine } from "@/components/RouteLine";
-import { WeekStrip } from "@/components/WeekStrip";
-import { Button } from "@/components/ui/Button";
-import { Skeleton } from "@/components/ui/Skeleton";
-import { ToastProvider } from "@/components/ui/Toast";
 import {
   useStore,
   useHydrated,
@@ -18,16 +12,28 @@ import {
   selectAverageScore,
   selectCurrentWeek,
 } from "@/lib/store";
-import { currentStreak, weekStrip, isTodayActive } from "@/lib/streak";
-import { localDateString } from "@/lib/dates";
+
+function Mark() {
+  return (
+    <span className="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 3.5a7.5 7.5 0 0 0-4.7 13.35L12 20.5l4.7-3.65A7.5 7.5 0 0 0 12 3.5Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <circle cx="12" cy="11" r="2.2" fill="currentColor" />
+      </svg>
+    </span>
+  );
+}
 
 export default function RoutePage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const route = useStore((s) => s.route);
+  const profile = useStore((s) => s.profile);
   const completed = useStore((s) => s.completed);
-  const routeDrawn = useStore((s) => s.routeDrawn);
-  const activeDays = useStore((s) => s.activeDays);
   const resetAll = useStore((s) => s.resetAll);
 
   const currentTopic = useStore(selectCurrentTopic);
@@ -42,13 +48,6 @@ export default function RoutePage() {
     }
   }, [hydrated, route, router]);
 
-  const handleDrawn = useCallback(() => {
-    if (route) {
-      // Mark route as drawn by updating the store
-      useStore.setState({ routeDrawn: true });
-    }
-  }, [route]);
-
   function handleNewRoute() {
     if (confirm("This deletes your current route, scores and streak from this browser. Continue?")) {
       resetAll();
@@ -58,106 +57,208 @@ export default function RoutePage() {
 
   if (!hydrated) {
     return (
-      <div className="min-h-screen flex flex-col bg-[var(--paper)]">
-        <header className="sticky top-0 z-40 bg-[var(--surface)] border-b border-[var(--line)] h-14" />
-        <main className="flex-1 max-w-[1120px] mx-auto w-full px-4 md:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-8">
-            <div className="flex flex-col gap-4">
-              <Skeleton variant="line" height="20px" width="50%" />
-              <Skeleton variant="line" height="40px" width="80%" />
-              <Skeleton variant="line" height="20px" />
-              <Skeleton variant="line" height="44px" width="160px" className="mt-2" />
-            </div>
-            <div className="flex flex-col gap-3">
-              <Skeleton variant="block" height="400px" />
+      <main>
+        <div className="shell">
+          <header className="topbar">
+            <Link href="/" className="brand">
+              <Mark /> SkillPilot
+            </Link>
+          </header>
+        </div>
+        <section className="shell dashboard">
+          <div className="dashboard-head">
+            <div>
+              <div className="eyebrow">Your learning route</div>
+              <h1>Loading your route...</h1>
             </div>
           </div>
-        </main>
-      </div>
+          <div className="dashboard-grid">
+            <section className="panel" style={{ minHeight: "340px", opacity: 0.6 }}>
+              <div className="card-kicker">Loading</div>
+              <p>Preparing your learning workspace...</p>
+            </section>
+            <aside className="panel" style={{ minHeight: "340px", opacity: 0.6 }}>
+              <div className="card-kicker">Route progress</div>
+            </aside>
+          </div>
+        </section>
+      </main>
     );
   }
 
   if (!route) return null;
 
-  const today = localDateString();
-  const streak = currentStreak(activeDays, today);
-  const strip = weekStrip(activeDays, today);
-  const todayActive = isTodayActive(activeDays, today);
   const allDone = completedCount >= totalCount && totalCount > 0;
+  const allTopics = route.weeks.flatMap((w) =>
+    w.topics.map((t) => ({ ...t, weekNumber: w.week }))
+  );
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--paper)]">
-      <TopBar />
-      <main className="flex-1 max-w-[1120px] mx-auto w-full px-4 md:px-8 py-8">
-        <h1 className="sr-only">Your learning route</h1>
+    <main>
+      <div className="shell">
+        <header className="topbar">
+          <Link href="/" className="brand">
+            <Mark /> SkillPilot
+          </Link>
+          <nav className="nav">
+            <button
+              type="button"
+              onClick={handleNewRoute}
+              style={{
+                background: "none",
+                border: "none",
+                padding: 0,
+                color: "inherit",
+                cursor: "pointer",
+              }}
+            >
+              Change route
+            </button>
+            <Link href="/progress" className="nav-cta">
+              Your progress
+            </Link>
+          </nav>
+        </header>
+      </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-          {/* Left: Today panel */}
-          <div className="flex-1 min-w-0 flex flex-col gap-6">
+      <section className="shell dashboard">
+        <div className="dashboard-head">
+          <div>
+            <div className="eyebrow">Your learning route</div>
+            <h1>{profile?.goal ?? route.goal}</h1>
+          </div>
+          <button
+            type="button"
+            className="back-link"
+            onClick={handleNewRoute}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+            }}
+          >
+            ← Build another route
+          </button>
+        </div>
+
+        <div className="dashboard-grid">
+          {/* Main Action Panel */}
+          <section className="panel">
             {allDone ? (
-              /* Route finished state */
-              <div className="flex flex-col gap-4">
-                <h2 className="text-title text-[var(--ink)]">Route finished</h2>
-                <p className="text-ui text-[var(--ink-soft)]">
-                  You completed {totalCount} topics with an average quiz score of {avgScore} percent.
+              <div>
+                <div className="card-kicker">Route Completed</div>
+                <h2>You finished your learning route!</h2>
+                <p>
+                  You completed all {totalCount} topics with an average quiz score of{" "}
+                  {avgScore}%.
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <Button variant="primary" asChild>
-                    <Link href="/progress">See progress</Link>
-                  </Button>
-                  <Button variant="secondary" onClick={handleNewRoute}>
-                    Build a new route
-                  </Button>
+                <div className="lesson-callout" style={{ marginTop: "24px" }}>
+                  <div>
+                    <strong>View your achievements & streak</strong>
+                    <p>Review quiz stats and topics studied</p>
+                  </div>
+                  <Link className="primary-btn" href="/progress">
+                    See progress
+                  </Link>
                 </div>
               </div>
             ) : currentTopic ? (
-              /* Current topic panel */
-              <div className="flex flex-col gap-4">
-                {currentWeek && (
-                  <p className="text-small text-[var(--ink-soft)]">
-                    Week {currentWeek.week} of {route.weeks.length}: {currentWeek.theme}
-                  </p>
-                )}
-                <h2 className="text-display text-[var(--ink)]">{currentTopic.title}</h2>
-                <p className="text-prose text-[var(--ink-soft)]">{currentTopic.why}</p>
-                <div className="flex items-center gap-4 flex-wrap">
-                  <Button variant="primary" asChild id="start-lesson-btn">
-                    <Link href={`/lesson/${currentTopic.id}`}>Start lesson</Link>
-                  </Button>
-                  <span className="text-small text-[var(--ink-soft)]">about 15 minutes</span>
+              <div>
+                <div className="card-kicker">
+                  This week · 0{currentWeek?.week ?? 1}
+                </div>
+                <h2>{currentWeek?.theme ?? "Core Foundations"}</h2>
+                <p>{currentTopic.why}</p>
+
+                <div className="lesson-callout">
+                  <div>
+                    <strong>{currentTopic.title}</strong>
+                    <p>15 min lesson · followed by a hands-on lab & quiz</p>
+                  </div>
+                  <Link className="primary-btn" href={`/lesson/${currentTopic.id}`}>
+                    Start lesson
+                  </Link>
                 </div>
               </div>
             ) : null}
 
-            {/* Week strip */}
-            <div className="flex flex-col gap-2">
-              <WeekStrip days={strip} />
-              {streak > 0 && !todayActive && (
-                <p className="text-small text-[var(--ink-soft)]">
-                  Do one topic today to keep your {streak}-day streak.
-                </p>
-              )}
-              {streak === 0 && (
-                <p className="text-small text-[var(--ink-soft)]">Start your streak today.</p>
-              )}
+            <div className="stats">
+              <div className="stat">
+                <strong>{String(completedCount).padStart(2, "0")}</strong>
+                <span>topics complete</span>
+              </div>
+              <div className="stat">
+                <strong>15m</strong>
+                <span>today&apos;s focus</span>
+              </div>
+              <div className="stat">
+                <strong>{route.weeks.length}</strong>
+                <span>week route</span>
+              </div>
             </div>
-          </div>
+          </section>
 
-          {/* Right: Route line */}
-          <div className="lg:w-[300px] shrink-0">
-            <div className="bg-[var(--surface)] border border-[var(--line)] rounded-[var(--radius-panel)] p-4">
-              <RouteLine
-                route={route}
-                completed={completed}
-                currentTopicId={currentTopic?.id ?? null}
-                routeDrawn={routeDrawn}
-                onDrawn={handleDrawn}
-              />
-            </div>
-          </div>
+          {/* Route Progress Sidebar */}
+          <aside id="progress" className="panel">
+            <div className="card-kicker">Route progress</div>
+            <ul className="side-list">
+              {allTopics.map((item, idx) => {
+                const isDone = Boolean(completed[item.id]);
+                const isCurrent = item.id === currentTopic?.id;
+                let statusLabel = "Later";
+                if (isDone) statusLabel = "Complete";
+                else if (isCurrent) statusLabel = "Today";
+                else if (idx === completedCount + 1) statusLabel = "Next";
+
+                return (
+                  <li key={item.id}>
+                    <Link
+                      href={`/lesson/${item.id}`}
+                      style={{
+                        color: "inherit",
+                        textDecoration: "none",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        width: "100%",
+                      }}
+                    >
+                      <span style={{ maxWidth: "200px" }}>
+                        <strong
+                          style={{
+                            color: isCurrent ? "var(--moss)" : "inherit",
+                          }}
+                        >
+                          {item.title}
+                        </strong>
+                        <br />
+                        <small style={{ color: "var(--muted)" }}>{item.why}</small>
+                      </span>
+                      <span
+                        className={isDone ? "check" : ""}
+                        style={{
+                          color: isCurrent ? "var(--sun)" : undefined,
+                          fontWeight: isCurrent ? 700 : undefined,
+                        }}
+                      >
+                        {statusLabel}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </aside>
         </div>
-      </main>
-      <ToastProvider />
-    </div>
+      </section>
+
+      <footer className="shell footer">
+        <p>Keep the route small. Keep the practice real.</p>
+        <Link className="text-link" href="/">
+          Back to SkillPilot
+        </Link>
+      </footer>
+    </main>
   );
 }

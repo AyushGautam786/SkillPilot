@@ -17,23 +17,17 @@ const sourceSerif4 = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "SkillPilot — Your personal AI learning companion",
-  description:
-    "SkillPilot builds a personalized week-by-week learning route for AI topics, teaches with lessons and hands-on labs, and tracks your progress with quizzes and streaks.",
-  keywords: ["AI learning", "machine learning", "skill development", "education", "India"],
+  title: "SkillPilot — Learn with a route, not a random playlist",
+  description: "A focused learning companion for engineering students building real technical skills.",
 };
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export default function RootLayout({ children }: LayoutProps) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${schibstedGrotesk.variable} ${sourceSerif4.variable} h-full`}
+      className={`${schibstedGrotesk.variable} ${sourceSerif4.variable}`}
     >
-      <body className="min-h-full flex flex-col antialiased">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
