@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 import { LessonRequestSchema } from "@/lib/schemas";
-import { generateJson } from "@/lib/gemini";
+import { generateJson, sanitizeDiagram, type AIProvider } from "@/lib/ai";
 import { lessonPrompt } from "@/lib/prompts";
-import { sanitizeDiagram } from "@/lib/gemini";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { AppError, Errors } from "@/lib/errors";
 import { z } from "zod";
@@ -43,8 +42,19 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) throw Errors.badInput();
 
     const { profile, topic } = parsed.data;
+
+    // Optional client-provided API keys or provider preference
+    const geminiApiKey = request.headers.get("x-gemini-api-key") ?? undefined;
+    const groqApiKey = request.headers.get("x-groq-api-key") ?? undefined;
+    const preferredProvider =
+      (request.headers.get("x-ai-provider") as AIProvider | null) ?? undefined;
+
     const prompt = lessonPrompt(profile, topic);
-    const lesson = await generateJson(prompt, LessonResponseSchema);
+    const lesson = await generateJson(prompt, LessonResponseSchema, {
+      geminiApiKey,
+      groqApiKey,
+      preferredProvider,
+    });
 
     // Sanitize diagram server-side
     const sanitizedDiagram = sanitizeDiagram(lesson.diagram);

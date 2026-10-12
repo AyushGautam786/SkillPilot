@@ -1,11 +1,22 @@
 import { NextRequest } from "next/server";
 import { ProfileSchema, RouteSchema } from "@/lib/schemas";
-import { generateJson } from "@/lib/gemini";
+import { generateJson, type AIProvider } from "@/lib/ai";
 import { routePrompt } from "@/lib/prompts";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { AppError, Errors } from "@/lib/errors";
 
 export const maxDuration = 30;
+
+export async function GET() {
+  return Response.json({
+    status: "ok",
+    providers: {
+      gemini: Boolean(process.env.GEMINI_API_KEY),
+      groq: Boolean(process.env.GROQ_API_KEY),
+      primary: process.env.PRIMARY_AI_PROVIDER || (process.env.GEMINI_API_KEY ? "gemini" : "groq"),
+    },
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,8 +31,18 @@ export async function POST(request: NextRequest) {
     }
     const profile = profileResult.data;
 
+    // Optional client-provided API keys or provider preference
+    const geminiApiKey = request.headers.get("x-gemini-api-key") ?? undefined;
+    const groqApiKey = request.headers.get("x-groq-api-key") ?? undefined;
+    const preferredProvider =
+      (request.headers.get("x-ai-provider") as AIProvider | null) ?? undefined;
+
     const prompt = routePrompt(profile);
-    const route = await generateJson(prompt, RouteSchema);
+    const route = await generateJson(prompt, RouteSchema, {
+      geminiApiKey,
+      groqApiKey,
+      preferredProvider,
+    });
 
     // Post-check: ensure topic ids are unique and well-formed
     const seen = new Set<string>();

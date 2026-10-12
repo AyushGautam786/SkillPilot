@@ -82,8 +82,13 @@ SkillPilot is directly aligned with **UN SDG 4: Ensure inclusive and equitable q
 
 | Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | Yes (Server) | Your Google Gemini API key ([Google AI Studio](https://aistudio.google.com/)). Never exposed to client bundles. |
-| `GEMINI_MODEL` | No | Target model name (defaults to `gemini-3.5-flash-lite` with fallback to `gemini-3.5-flash`). |
+| `GEMINI_API_KEY` | Optional* | Your Google Gemini API key ([Google AI Studio](https://aistudio.google.com/)). Primary default engine. |
+| `GEMINI_MODEL` | No | Target Gemini model name (defaults to `gemini-3.5-flash-lite`). |
+| `GROQ_API_KEY` | Optional* | Your Groq Cloud API key ([console.groq.com](https://console.groq.com/keys)). Free 14,400 req/day fallback. |
+| `GROQ_MODEL` | No | Target Groq model name (defaults to `llama-3.3-70b-versatile`). |
+| `PRIMARY_AI_PROVIDER` | No | Default provider (`gemini` or `groq`, defaults to `gemini`). |
+
+*\*At least one API key (`GEMINI_API_KEY` or `GROQ_API_KEY`) is required. When both are provided, SkillPilot automatically falls back to Groq if Gemini hits rate limits or quota exhaustion.*
 
 ---
 
