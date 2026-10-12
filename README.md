@@ -113,7 +113,7 @@ If you prefer configuring via the Render Dashboard directly:
    - **Language / Runtime**: `Node`
    - **Branch**: `main`
    - **Region**: Closest to your users (e.g., Singapore or Frankfurt)
-   - **Build Command**: `npm install && npm run build`
+   - **Build Command**: `npm install --legacy-peer-deps && npm run build`
    - **Start Command**: `npm start`
    - **Instance Type**: `Free`
 4. Expand **Advanced** → **Environment Variables** and add:
