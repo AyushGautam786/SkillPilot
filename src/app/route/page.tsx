@@ -10,7 +10,6 @@ import {
   selectCompletedCount,
   selectTotalTopicCount,
   selectAverageScore,
-  selectCurrentWeek,
 } from "@/lib/store";
 
 function Mark() {
@@ -40,7 +39,9 @@ export default function RoutePage() {
   const completedCount = useStore(selectCompletedCount);
   const totalCount = useStore(selectTotalTopicCount);
   const avgScore = useStore(selectAverageScore);
-  const currentWeek = useStore(selectCurrentWeek);
+  const currentWeek = route?.weeks.find((w) =>
+    w.topics.some((t) => t.id === currentTopic?.id)
+  ) ?? null;
 
   useEffect(() => {
     if (hydrated && !route) {

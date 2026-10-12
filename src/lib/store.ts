@@ -161,13 +161,8 @@ export function selectCurrentWeek(state: StoreState): { week: number; theme: str
   if (!state.route) return null;
   const currentTopic = selectCurrentTopic(state);
   if (!currentTopic) return null;
-  // Find which week contains the current topic
-  for (const week of state.route.weeks) {
-    if (week.topics.some((t) => t.id === currentTopic.id)) {
-      return { week: week.week, theme: week.theme };
-    }
-  }
-  return null;
+  const match = state.route.weeks.find((w) => w.topics.some((t) => t.id === currentTopic.id));
+  return match ?? null;
 }
 
 // Hook that ensures store is only read after hydration

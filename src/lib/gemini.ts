@@ -44,9 +44,9 @@ export function sanitizeDiagram(raw: string): string {
 export async function generateJson<T>(prompt: string, schema: ZodType<T>): Promise<T> {
   const genAI = getGenAI();
 
-  const configuredModel = process.env.GEMINI_MODEL ?? "gemini-3.5-flash";
+  const configuredModel = process.env.GEMINI_MODEL ?? "gemini-3.5-flash-lite";
   const candidateModels = Array.from(
-    new Set([configuredModel, "gemini-3.5-flash", "gemini-3.5-flash-lite"])
+    new Set([configuredModel, "gemini-3.5-flash-lite", "gemini-3.5-flash"])
   );
 
   const systemInstruction =
