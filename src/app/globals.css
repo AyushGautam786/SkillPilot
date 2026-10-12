@@ -1,26 +1,224 @@
 @import "tailwindcss";
 
+/* =========================================================
+   Design Tokens — SkillPilot
+   ========================================================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color */
+  --paper: #f2f4f7;
+  --surface: #ffffff;
+  --sunken: #e7ebf1;
+  --line: #cbd3df;
+  --ink: #14284b;
+  --ink-soft: #4a5b78;
+  --cobalt: #2748c9;
+  --cobalt-press: #1e3aa3;
+  --cobalt-wash: #e3e9fb;
+  --marigold: #f2a900;
+  --teal: #18795f;
+  --brick: #b4382e;
+
+  /* Spacing (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Border radius */
+  --radius-field: 3px;
+  --radius-panel: 10px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Typography sizes */
+  --text-display-size: 40px;
+  --text-display-lh: 44px;
+  --text-title-size: 28px;
+  --text-title-lh: 34px;
+  --text-heading-size: 20px;
+  --text-heading-lh: 28px;
+  --text-ui-size: 15px;
+  --text-ui-lh: 22px;
+  --text-small-size: 13px;
+  --text-small-lh: 18px;
+  --text-prose-size: 18px;
+  --text-prose-lh: 30px;
+  --text-code-size: 14px;
+  --text-code-lh: 22px;
 }
 
+/* Expose tokens to Tailwind v4 */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-cobalt: var(--cobalt);
+  --color-cobalt-press: var(--cobalt-press);
+  --color-cobalt-wash: var(--cobalt-wash);
+  --color-marigold: var(--marigold);
+  --color-teal: var(--teal);
+  --color-brick: var(--brick);
+
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+
+  --radius-field: var(--radius-field);
+  --radius-panel: var(--radius-panel);
+  --radius-pill: var(--radius-pill);
+
+  --font-sans: var(--font-schibsted);
+  --font-serif: var(--font-source-serif);
+  --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* =========================================================
+   Base styles
+   ========================================================= */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--text-ui-size);
+  line-height: var(--text-ui-lh);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global focus ring */
+:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
+
+/* Typography helpers */
+.text-display {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-lh);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.text-title {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--text-title-size);
+  line-height: var(--text-title-lh);
+  font-weight: 600;
+}
+
+.text-heading {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--text-heading-size);
+  line-height: var(--text-heading-lh);
+  font-weight: 600;
+}
+
+.text-ui {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--text-ui-size);
+  line-height: var(--text-ui-lh);
+  font-weight: 500;
+}
+
+.text-small {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: var(--text-small-size);
+  line-height: var(--text-small-lh);
+  font-weight: 400;
+}
+
+.text-prose {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: var(--text-prose-size);
+  line-height: var(--text-prose-lh);
+  font-weight: 400;
+  max-width: 62ch;
+}
+
+.text-code {
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  font-size: var(--text-code-size);
+  line-height: var(--text-code-lh);
+  font-weight: 400;
+}
+
+/* Skeleton pulse animation */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-pulse {
+    animation: none;
+  }
+}
+
+/* Route line draw animation */
+@keyframes route-draw {
+  from {
+    stroke-dashoffset: var(--route-length, 2000);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.route-draw {
+  animation: route-draw 1200ms var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
 }
