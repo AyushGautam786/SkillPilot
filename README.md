@@ -82,15 +82,43 @@ SkillPilot is directly aligned with **UN SDG 4: Ensure inclusive and equitable q
 
 | Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | Yes (Server) | Your Google Gemini API key. Never exposed to client bundles. |
-| `GEMINI_MODEL` | No | Target model name (defaults to `gemini-2.5-flash`). |
+| `GEMINI_API_KEY` | Yes (Server) | Your Google Gemini API key ([Google AI Studio](https://aistudio.google.com/)). Never exposed to client bundles. |
+| `GEMINI_MODEL` | No | Target model name (defaults to `gemini-3.5-flash-lite` with fallback to `gemini-3.5-flash`). |
 
 ---
 
-## Live Deployment
+## Deploying to Render
 
-- **Deployment Platform:** Vercel
-- **Live URL:** `https://skillpilot.vercel.app` *(or your imported Vercel project deployment URL)*
+SkillPilot includes native configuration for zero-friction deployment to [Render](https://render.com).
+
+### Method 1: 1-Click Blueprint (Recommended)
+1. Fork or push this repository to your GitHub account (`https://github.com/<your-username>/SkillPilot`).
+2. Log in to [Render Dashboard](https://dashboard.render.com).
+3. Click **New +** in the top navigation bar and select **Blueprint**.
+4. Connect your GitHub repository. Render will automatically detect [`render.yaml`](./render.yaml).
+5. When prompted, enter your `GEMINI_API_KEY`.
+6. Click **Apply**. Render will install dependencies, build the Next.js bundle, and launch your web service.
+
+### Method 2: Manual Web Service Setup
+If you prefer configuring via the Render Dashboard directly:
+1. In Render, click **New +** → **Web Service**.
+2. Select your GitHub repository (`SkillPilot`).
+3. Fill in the following settings:
+   - **Name**: `skillpilot` (or any custom name)
+   - **Language / Runtime**: `Node`
+   - **Branch**: `main`
+   - **Region**: Closest to your users (e.g., Singapore or Frankfurt)
+   - **Build Command**: `npm install && npm run build`
+   - **Start Command**: `npm start`
+   - **Instance Type**: `Free`
+4. Expand **Advanced** → **Environment Variables** and add:
+   - `NODE_VERSION`: `20.18.0`
+   - `GEMINI_API_KEY`: `<your_gemini_api_key>`
+   - `GEMINI_MODEL`: `gemini-3.5-flash-lite`
+5. Click **Create Web Service**.
+
+> [!NOTE]
+> On Render's Free tier, services spin down after 15 minutes of inactivity. When a new visitor accesses the URL, Render automatically wakes the instance within ~30–50 seconds. Route and lesson generation will run smoothly once active.
 
 ---
 
